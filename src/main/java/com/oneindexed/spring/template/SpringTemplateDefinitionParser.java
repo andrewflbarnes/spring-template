@@ -27,7 +27,15 @@ public class SpringTemplateDefinitionParser extends AbstractBeanDefinitionParser
     }
 
     @Nullable
+    @Override
     protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
+
+        // Fast fail
+        if (!StringUtils.hasText(element.getAttribute(PROPERTY_REF)) &&
+                (!StringUtils.hasText(element.getAttribute(PROPERTY_PROVIDER)))) {
+            throw new BeanDefinitionValidationException(
+                    "spring-template definition must contain property-ref or property-provider");
+        }
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .rootBeanDefinition(SpringTemplateBean.class);
@@ -39,13 +47,6 @@ public class SpringTemplateDefinitionParser extends AbstractBeanDefinitionParser
                 builder.addPropertyValue(attribute[1], attributeValue);
             }
         });
-
-        // Fast fail
-        if (!StringUtils.hasText(element.getAttribute(PROPERTY_REF)) &&
-                (!StringUtils.hasText(element.getAttribute(PROPERTY_PROVIDER)))) {
-            throw new BeanDefinitionValidationException(
-                    "spring-template definition must contain property-ref or property-provider");
-        }
 
         return builder.getBeanDefinition();
     }

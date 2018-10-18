@@ -17,9 +17,9 @@ public class SpringTemplateBeanTest {
     public void testLoad() {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:test.xml");
 
-        SpringTemplateBean dmb = context.getBean(SpringTemplateBean.class);
+        SpringTemplateBean st = context.getBean(SpringTemplateBean.class);
 
-        assertEquals(10, dmb.getAllResolvedTemplates().size());
+        assertEquals(10, st.getAllResolvedTemplates().size());
 
         context.close();
     }
@@ -28,7 +28,7 @@ public class SpringTemplateBeanTest {
     public void testPersistence() {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:test-persist.xml");
 
-        assertNotNull(context.getBean("DMB-1-template"));
+        assertNotNull(context.getBean("ST-1-template"));
 
         context.close();
     }
@@ -38,7 +38,7 @@ public class SpringTemplateBeanTest {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:test.xml");
 
         try {
-            context.getBean("DMB-1-template");
+            context.getBean("ST-1-template");
         } finally {
             context.close();
         }

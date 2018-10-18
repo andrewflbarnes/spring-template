@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class SpringTemplateBean implements ApplicationContextAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringTemplateBean.class);
-    private static final String PROXY_PREFIX = "DMB";
+    private static final String PROXY_PREFIX = "ST";
     private static final Pattern PROPERTY_PATTERN = Pattern.compile("\\$\\{(.*?)\\}");
 
     private String template;
@@ -66,7 +66,6 @@ public class SpringTemplateBean implements ApplicationContextAware {
         return allResolvedTemplates;
     }
 
-    // TODO naming strategy for lazy init and persistent definitions
     public void init() {
         LOGGER.info("Creating spring template beans for {} from main context", template);
 
@@ -137,7 +136,7 @@ public class SpringTemplateBean implements ApplicationContextAware {
             if (RuntimeBeanReference.class.isAssignableFrom(pVal.getClass())) {
                 RuntimeBeanReference rVal = (RuntimeBeanReference) pVal;
 
-                if (!rVal.getBeanName().startsWith(proxyPrefix) && beanIsDmbConfigurable(rVal.getBeanName())) {
+                if (!rVal.getBeanName().startsWith(proxyPrefix) && beanIsTemplateConfigurable(rVal.getBeanName())) {
                     pvs.removePropertyValue(pv.getName());
                     pvs.addPropertyValue(new PropertyValue(pv.getName(), new RuntimeBeanReference(proxyPrefix + rVal.getBeanName())));
 
@@ -155,7 +154,7 @@ public class SpringTemplateBean implements ApplicationContextAware {
             if (RuntimeBeanReference.class.isAssignableFrom(cVal.getClass())) {
                 RuntimeBeanReference rVal = (RuntimeBeanReference) cVal;
 
-                if (!rVal.getBeanName().startsWith(proxyPrefix) && beanIsDmbConfigurable(rVal.getBeanName())) {
+                if (!rVal.getBeanName().startsWith(proxyPrefix) && beanIsTemplateConfigurable(rVal.getBeanName())) {
                     cvs.get(cIndex).setValue(new RuntimeBeanReference(proxyPrefix + rVal.getBeanName()));
 
                     addCustomBeanDefinitions(rVal.getBeanName(), proxyPrefix);
@@ -166,7 +165,7 @@ public class SpringTemplateBean implements ApplicationContextAware {
         beanDefintionRegistry.registerBeanDefinition(proxyPrefix + bean, implBeanDefinition);
     }
 
-    private boolean beanIsDmbConfigurable(String bean) {
+    private boolean beanIsTemplateConfigurable(String bean) {
         BeanDefinition beanDefinition = beanFactory.getBeanDefinition(bean);
         Map<String, Object> config = properties.iterator().next();
 
@@ -319,15 +318,14 @@ public class SpringTemplateBean implements ApplicationContextAware {
         resolvedBeanDefinitions.clear();
 
         if (!lazyInit && !persistentDefinitions) {
-            for (String dmbBean : beanFactory.getBeanDefinitionNames()) {
-                if (dmbBean.startsWith(PROXY_PREFIX)) {
-                    beanDefintionRegistry.removeBeanDefinition(dmbBean);
+            for (String stBean : beanFactory.getBeanDefinitionNames()) {
+                if (stBean.startsWith(PROXY_PREFIX)) {
+                    beanDefintionRegistry.removeBeanDefinition(stBean);
                 }
             }
         }
     }
 
-    // TODO - trigger bean creation as part of normal bean processing or post processing
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
