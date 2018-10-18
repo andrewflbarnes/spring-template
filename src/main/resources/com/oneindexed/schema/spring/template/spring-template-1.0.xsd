@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.oneindexed.com/schema/spring/template"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.oneindexed.com/schema/spring/template"
+            elementFormDefault="qualified">
+
+    <xsd:element name="spring-template">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+                    Used to inject multiple sets of properties into "template" beans.
+
+                    The purpose of this extention is to provide a transparent method for creating
+                    multiple instances of the same bean (and bean structures) for different
+                    configuration.
+
+                    For example "template" beans may be defined to connect message listeners to
+                    queues over JMS. A service can then dynamically provide the configuration
+                    required at runtime determining which queues to connect to. This alleviates
+                    the problem of having to define the exact number of queues (and connection
+                    properties) in advance while still allowing the beans (or at least, the
+                    "templates") to be defined in standard Spring XML configuration.
+
+                    Configuration is provided to a spring template bean as a set of maps containing
+                    key value pairs.
+
+                    Each map defines a specific "implementation" of the "template" bean for
+                    which proxied bean definitions are created and resolved against. The
+                    spring-template extention will automatically create proxy definitions for
+                    dependencies of the templates if, and only if, configuration is provided
+                    for those dependencies.
+
+                    This is NOT currently compatible with the depends-on attribute of Spring
+                    beans - any "template" beans using this attribute will have undefined
+                    results...
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attribute name="template" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            Reference to the bean which is the template
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
+            <xsd:attribute name="property-ref" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            Reference to a bean of type <Set<Map<String, String>> containing properties
+                            for the spring template
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
+            <xsd:attribute name="property-provider" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            Reference to a bean which acts a provider for spring template bean configuration.
+                            This must implement the SpringTemplatePropertyProvider interface
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
+            <xsd:attribute name="persistent-definitions" type="xsd:boolean">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            Will persist bean definitions in the bean registry after resolving
+                            "templates" if set to true, otherwise will remove them.
+
+                            Default is false, unless lazy-init is set to true in which case this
+                            is true (it must be in order for beans to be created later).
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
+            <xsd:attribute name="lazy-init" type="xsd:boolean">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            If true then resolved "templates" are lazily initialised. If
+                            false then they are initialised immediately following resolution.
+                            Setting to true forces persistent-definitions to true as well.
+
+                            Default is false.
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>
